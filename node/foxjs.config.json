@@ -1,0 +1,25 @@
+{
+	app:{
+		path:__dirname,
+		serverName:'foxjs,v1',
+
+	},
+	controller:{
+		path:__dirname+'/controller'
+
+	},
+	action:{
+		
+		
+	},
+	model:{
+		path:__dirname+'/model'
+
+	},
+	view:{
+		path:__dirname+'view'
+
+	}
+
+
+}
