@@ -1,5 +1,5 @@
 /*!
- *foxJS v1.2.0
+ *foxJS v1.2
  *http://foxJS.com
  *Copyright 2012, ZenWong
  */
@@ -15,44 +15,46 @@
 			param = document.getElementById(param);//如果是字符串就当作ID找到元素
 			if(!param.foxJS || renew){
 				param.foxJS = new foxBaby(param);
+				foxJS.rename(param,foxJS.varName);
 			}
 		}else if(foxJS.isArray(param)){ //如果是数组
 			var len = param.length;
 			for(var i=0;i<len;i++){
 				if(!param[i].foxJS || renew){
 					param[i].foxJS = new foxBaby(param[i]);
-					foxJS.rename(param[i]);
+					foxJS.rename(param[i],foxJS.varName);
 				}
 
 			}
 		}else{
 			if(!param.foxJS || renew){
 				param.foxJS = new foxBaby(param);
-				foxJS.rename(param);
+				foxJS.rename(param,foxJS.varName);
 			}
 
 		}
 
 		return param;
 	};
-	foxJS.__FOXJS__INTERVAL__LIST = {}; //
-	foxJS.__init = function(){ //初始化方法，用于导入文件后对全局的FOXJS对象初始化
+	//init run
+	(function(self,window,undefined){ //初始化方法，用于导入文件后对全局的FOXJS对象初始化
+		self.window = window;
+		self.__FOXJS__INTERVAL__LIST = {};
+		self.type={};
+		self.type.array = "[object Array]";
+		self.type.nodeList = "[object NodeList]";
+		self.type.htmlCollection = "[object HTMLCollection]";
+		self.type.object = "[object Object]";
+		self.type.json = "[object Object]";
+		self.type.string = "[object String]";
+		self.xmlHttpRequest = null;
+		self.helper = {};
+		self.helper.isIE = (document.all && window.ActiveXObject && !window.opera) ? true : false;
 
-		this.type={};
-		this.type.array = "[object Array]";
-		this.type.nodeList = "[object NodeList]";
-		this.type.htmlCollection = "[object HTMLCollection]";
-		this.type.object = "[object Object]";
-		this.type.json = "[object Object]";
-		this.type.string = "[object String]";
-		this.xmlHttpRequest = null;
-		this.helper = {};
-		this.helper.isIE = (document.all && window.ActiveXObject && !window.opera) ? true : false;
-		
-		this.toString = function(val){ //转为字符串
-			if(this.isArray(val)){
+		self.toString = function(val){ //转为字符串
+			if(self.isArray(val)){
 				return foxJS.array2string(val);
-			}else if(this.isJson(val)){
+			}else if(self.isJson(val)){
 				return foxJS.set2string(val);
 			}else{
 				if(!!val.value){
@@ -63,7 +65,8 @@
 			}
 			return val.toString();
 		};
-		this.go = function(obj){ //go方法，用于进行一些反复的操作
+		self.go = function(obj){ //go方法，用于进行一些反复的操作
+			if(!obj['function'])return false;
 			var iObj = {}
 			iObj['endCount'] = obj.endCount;
 			iObj['nowCount'] = 0;
@@ -71,20 +74,20 @@
 			iObj['end'] = obj.end; //结束函数
 			iObj['endCount'] = obj.endCount;
 			iObj['time'] = obj.time||1;
-			iObj['id'] = Math.floor(Math.random()*100000000)+(new Date()).valueOf().toString();
+			iObj['id'] = Math.floor(Math.random()*10000000000);
 			iObj['handle'] = null;
-			iObj['handle'] = setInterval(this._goAction,iObj.time,iObj.id);
-			foxJS.__FOXJS__INTERVAL__LIST[obj.id] = iObj;
-			return obj.id;
+			iObj['handle'] = self.window.setInterval(self._goAction,iObj.time,iObj.id);
+			foxJS.__FOXJS__INTERVAL__LIST[iObj.id] = iObj;
+			return iObj.id;
 		};
 
-		this._goAction = function(doId){ //do的工作函数
+		self._goAction = function(doId){ //do的工作函数
 			var iObj = foxJS.__FOXJS__INTERVAL__LIST[doId];
-			var endCount = iObj['endCount']?iObj['endCount']:-1; //执行次数
+			var endCount = iObj.endCount||-1; //执行次数
 			var nowCount = iObj['nowCount']; //当前次数
 			var isEndCount = endCount==-1?false:!(nowCount<endCount); //如果到达了结束执行的次数
 			if(isEndCount){
-				window.clearInterval(iObj['handle']);
+				self.window.clearInterval(iObj['handle']);
 				return;
 			}else{
 				foxJS.__FOXJS__INTERVAL__LIST[doId]['nowCount']++;
@@ -97,25 +100,25 @@
 				isFunctionEnd = false;
 			}
 			if(!!isFunctionEnd){
-				window.clearInterval(iObj['handle']);
+				self.window.clearInterval(iObj['handle']);
 				return ;
 			}
 			iObj['function']();
 		};
-		this.unGo = function(doId){ //停止一个动作
+		self.unGo = function(doId){ //停止一个动作
 			if(!foxJS.isArray(doId)){
 				doId = new Array(doId);
 
 			}
 			for (var i in doId) {
 				var iObj = foxJS.__FOXJS__INTERVAL__LIST[doId[i]];
-				window.clearInterval(iObj['handle']);
+				self.window.clearInterval(iObj['handle']);
 			}
 
 		};
 
-		this.xmlHttpRequestBuilder = function(){ //构造xhr对象
-			if(!this.xmlHttpRequest){
+		self.xmlHttpRequestBuilder = function(){ //构造xhr对象
+			if(!self.xmlHttpRequest){
 
 				var xmlHttp = false;
 
@@ -132,14 +135,14 @@
 				if (!xmlHttp && typeof XMLHttpRequest != 'undefined') {
 				  xmlHttp = new XMLHttpRequest();
 				}
-				this.xmlHttpRequest = xmlHttp;
+				self.xmlHttpRequest = xmlHttp;
 
 			}
-			return this.xmlHttpRequest;
+			return self.xmlHttpRequest;
 		};
-		this.ajax = function(param){ //ajax请求
+		self.ajax = function(param){ //ajax请求
 
-			var xhr = this.xmlHttpRequestBuilder();
+			var xhr = self.xmlHttpRequestBuilder();
 
 			var type = 'POST';
 			if(!!param.type){
@@ -150,7 +153,7 @@
 			var data = param.data;
 			var callBack = param.callBack;
 
-			if(!this.isJson(param)){ //判断是否是快速使用
+			if(!self.isJson(param)){ //判断是否是快速使用
 				type = "GET";
 				url = param;
 				data = arguments[1];
@@ -159,14 +162,14 @@
 					type = arguments[3];
 				}
 			}
-			var outThis = this;
+			//var outThis = this;
 
 			xhr.open(type,url,true);
 			xhr.onreadystatechange = function(){
 
 				if(xhr.readyState == 4){ //请求成功
 						var resText = xhr.responseText;
-						var resJson = outThis.toJson(resText);
+						var resJson = self.toJson(resText);
 						var res = {};
 						res.text = resText;
 						res.json = resJson;
@@ -177,7 +180,7 @@
 
 			xhr.send(data);
 		};
-		this.crossAjax = function(param){ //AJAX跨域请求
+		self.crossAjax = function(param){ //AJAX跨域请求
 			var ajaxObj = document.createElement("SCRIPT");
 			ajaxObj.src=param.url+"?"+param.data+"&__callback="+param.callback;
 			//document.body.appendChild(ajaxObj);
@@ -185,14 +188,14 @@
 
 		};
 
-		this.getType = function(value){	//获得变量类型
+		self.getType = function(value){	//获得变量类型
 			return Object.prototype.toString.apply(value);
 		};
-		this.isArray = function(value){	//是否数组
-			var type = this.getType(value);
-			if(type == this.type.array 
-			|| type == this.type.nodeList
-			|| type == this.type.htmlCollection)
+		self.isArray = function(value){	//是否数组
+			var type = self.getType(value);
+			if(type == self.type.array 
+			|| type == self.type.nodeList
+			|| type == self.type.htmlCollection)
 			{
 				return true;
 			}else{
@@ -200,20 +203,20 @@
 			}
 		};
 
-		this.isJson = function(value){ //判断是不是JSON
-			return this.getType(value)==this.type.json;
+		self.isJson = function(value){ //判断是不是JSON
+			return self.getType(value)==self.type.json;
 		};
-		this.isString = function(value){ //判断是否字符串
-			return this.getType(value)==this.type.string;
+		self.isString = function(value){ //判断是否字符串
+			return self.getType(value)==self.type.string;
 		};
 
-		this.getEvent = function(){
+		self.getEvent = function(){
 			try{
 					ret_event = event;
 
 			}catch(err){
 
-					tmpSender = this.getEvent.caller;
+					tmpSender = this.getEvent.caller; //这里的this的对的，她表示调用该函数时的对象
 					prevSender = null;
 
 					while(!!tmpSender){
@@ -229,28 +232,28 @@
 			return ret_event;
 
 		};
-		this.getSender = function(){	//获得调用函数的元素
+		self.getSender = function(){	//获得调用函数的元素
 
-			if(!!this.getEvent().srcElement)
+			if(!!self.getEvent().srcElement)
 			{
-					sender = this.getEvent().srcElement;
+					sender = self.getEvent().srcElement;
 			}
 			else
 			{
-					sender = this.getEvent().target;
+					sender = self.getEvent().target;
 			}
 
 			return sender;
 
 		};
 
-		this.time = function(){ //时间函数
+		self.time = function(){ //时间函数
 			return Date.parse(new Date())/1000;
 		};
-		this.microtime = function(){	//毫秒函数
+		self.microtime = function(){	//毫秒函数
 			return  (new Date()).valueOf();
 		};
-		this.date = function(formatStr,time){	//日期函数
+		self.date = function(formatStr,time){	//日期函数
 			
 			if(!!time){
 				d = new Date(time*1000);
@@ -267,7 +270,7 @@
 			return formatStr;
 		
 		};
-		this.trim = function(str,charS){	//去空格函数
+		self.trim = function(str,charS){	//去空格函数
 			if(!charS){
 				charS = ' ';
 			}
@@ -284,7 +287,7 @@
 			return str;
 		};
 
-		this.pickValue = function(){	//挑选变量内容的函数
+		self.pickValue = function(){	//挑选变量内容的函数
 			var args = arguments;
 			var argsLen = args.length;
 			for(var i=0;i<argsLen;i++){
@@ -295,10 +298,10 @@
 		
 		};
 
-		this.arrayMap = function(array,func){	//数组内容遍历处理函数
-			if(this.isArray(array)){
+		self.arrayMap = function(array,func){	//数组内容遍历处理函数
+			if(self.isArray(array)){
 				for(var k in array){
-					array[k] = this.arrayMap(array[k],func);
+					array[k] = self.arrayMap(array[k],func);
 				}
 				return array;			
 			}else{
@@ -306,10 +309,10 @@
 			}
 		};
 
-		this.rand = function(){	//随机函数
+		self.rand = function(){	//随机函数
 			var args = arguments;
 
-			if(this.isArray(args[0])){//随机从数组中取出
+			if(self.isArray(args[0])){//随机从数组中取出
 				var returnNum = args[1];
 				var returnArr = [];
 				
@@ -337,11 +340,11 @@
 			
 		};
 
-		this.nl2br = function(text){ //换行转HTML
+		self.nl2br = function(text){ //换行转HTML
 			return text.replace(/\n/,"<br />");
 		};
 
-		this.toJson = function(val){ //文本转JSON
+		self.toJson = function(val){ //文本转JSON
 			try{
 
 					//JSON.parse(val);
@@ -352,11 +355,11 @@
 			}
 			return json;
 		};
-		this.array2string = function(array){  //数组到字符串
-			if(this.isArray(array)){
+		self.array2string = function(array){  //数组到字符串
+			if(self.isArray(array)){
 				var string = '[';
 				for(var k in array){
-					string += this.array2string(array[k])+",";
+					string += self.array2string(array[k])+",";
 				}
 				string = string.substring(0,string.length-1);
 				string += ']';
@@ -366,18 +369,18 @@
 			}
 		};
 
-		this.set2string = function(set){ //集合（数组或json）转换为字符串
-			if(this.isJson(set)){
+		self.set2string = function(set){ //集合（数组或json）转换为字符串
+			if(self.isJson(set)){
 				var string = '{';
 				for(var k in set){
-					string += k+":"+this.set2string(set[k])+",";
+					string += k+":"+self.set2string(set[k])+",";
 				}
 				string = string.substring(0,string.length-1);
 				string += '}';
 				return string;
 			}else{
-				if(this.isArray(set)){
-					return this.array2string(set);
+				if(self.isArray(set)){
+					return self.array2string(set);
 				}else{
 					return "\""+escape(set)+"\"";
 
@@ -387,14 +390,14 @@
 
 		};
 
-		this.json2query = function(json){	//JSON转文本
+		self.json2query = function(json){	//JSON转文本
 		
-			json = this.toJson(json);
+			json = self.toJson(json);
 
 			ret = '';
 			
 			for(var i in json){
-					if(this.isArray(json[i])){
+					if(self.isArray(json[i])){
 					
 							for(j in json[i]){
 									ret += i+'['+j+']='+escape(json[i][j])+'&';
@@ -408,14 +411,14 @@
 
 		};
 
-		this.json2xml = function(json){	//JSON转XML
+		self.json2xml = function(json){	//JSON转XML
 
 
-			if(this.isJson(json)){
+			if(self.isJson(json)){
 				var xml = '';
 				for(var key in json){
 					xml += '<'+key+'>' +
-								this.json2xml(json[key]) +
+								self.json2xml(json[key]) +
 								'</'+key+'>';
 				}
 				return xml;
@@ -425,29 +428,29 @@
 			}
 
 		}; 
-		this.importAgain = function(src){ //再导入一次
+		self.importAgain = function(src){ //再导入一次
 			scriptObj = document.getElementById('FOXJS_'+src);
 			if (!scriptObj) {//如果没有导入
-				this['import'](src);
+				self['import'](src);
 			}else{
-				this['import'](src+'?'+(new Date()).valueOf()+this.rand(0,1000));
+				self['import'](src+'?'+(new Date()).valueOf()+self.rand(0,1000));
 			}
 		};
-		this.importOnce = function(src){//导入一次
+		self.importOnce = function(src){//导入一次
 			scriptObj = document.getElementById('FOXJS_'+src);
 			if (!scriptObj) {//如果没有导入
-				this['import'](src);
+				self['import'](src);
 			}
 			return src;
 		};
-		this['import'] = function(src){//导入脚本
+		self['import'] = function(src){//导入脚本
 			var scriptObj = document.createElement("SCRIPT");
 			scriptObj.src=src;
 			scriptObj.id = 'FOXJS_'+src;
 			document.body.insertBefore(scriptObj,document.body.childNodes[0]);
 		};
-	}; //foxJS.__init
-	foxJS.__init();	//初始化对象
+	})(foxJS,window); //foxJS.__init
+	//foxJS.__init();	//初始化对象
 
 	foxBaby = function(element){	//特殊的foxjs element对象
 		this.element = element;
@@ -627,14 +630,12 @@
 	};
 	foxJS.fox = foxBaby.prototype;
 
-	foxJS.rename = function(element){
+	foxJS.rename = function(element,varName){
+		for (var i in varName) {
 
-		for (var i in foxJS.valName) {
-
-			element[foxJS.valName[i]] = element.foxJS;
+			element[varName[i]] = element.foxJS;
 		}
 	};
-	foxJS.valName = ['_'];
-	foxJS.window = window;
+	foxJS.varName = ['_'];
 	window._ = window.__ = window.foxJS = foxJS;
 })(window);
