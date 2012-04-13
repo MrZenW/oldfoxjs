@@ -68,12 +68,13 @@
 			var iObj = {}
 			iObj['endCount'] = obj.endCount;
 			iObj['nowCount'] = 0;
-			iObj['function'] = obj.function;
-			iObj['endString'] = obj.endString;
+			iObj['function'] = obj['function'];
+			iObj['end'] = obj.end; //结束函数
 			iObj['endCount'] = obj.endCount;
+			iObj['time'] = obj.time||1;
 			iObj['id'] = Math.floor(Math.random()*100000000)+(new Date()).valueOf().toString();
 			iObj['handle'] = null;
-			iObj['handle'] = setInterval(this._goAction,obj.time,obj.id);
+			iObj['handle'] = setInterval(this._goAction,iObj.time,iObj.id);
 			foxJS.__FOXJS__INTERVAL__LIST[obj.id] = iObj;
 			return obj.id;
 		};
@@ -82,7 +83,7 @@
 			var iObj = foxJS.__FOXJS__INTERVAL__LIST[doId];
 			var endCount = iObj['endCount']?iObj['endCount']:-1; //执行次数
 			var nowCount = iObj['nowCount']; //当前次数
-			var isEndCount = endCount==-1?false:!(nowCount<endCount);
+			var isEndCount = endCount==-1?false:!(nowCount<endCount); //如果到达了结束执行的次数
 			if(isEndCount){
 				window.clearInterval(iObj['handle']);
 				return;
@@ -90,17 +91,17 @@
 				foxJS.__FOXJS__INTERVAL__LIST[doId]['nowCount']++;
 			}
 
-			var isEndString = false; //结束字符串
-			if(!!iObj.endString){
-				isEndString = eval('isEndString = '+iObj.endString);
+			var isFunctionEnd = false; //结束函数
+			if(!!iObj.end){
+				isFunctionEnd = iObj.end();
 			}else{
-				isEndString = false;
+				isFunctionEnd = false;
 			}
-			if(isEndString){
+			if(!!isFunctionEnd){
 				window.clearInterval(iObj['handle']);
 				return ;
 			}
-			iObj.function();
+			iObj['function']();
 		};
 		this.unGo = function(doId){ //停止一个动作
 			if(!foxJS.isArray(doId)){
@@ -428,19 +429,19 @@
 		this.importAgain = function(src){ //再导入一次
 			scriptObj = document.getElementById('FOXJS_'+src);
 			if (!scriptObj) {//如果没有导入
-				this.import(src);
+				this['import'](src);
 			}else{
-				this.import(src+'?'+(new Date()).valueOf()+this.rand(0,1000));
+				this['import'](src+'?'+(new Date()).valueOf()+this.rand(0,1000));
 			}
 		};
 		this.importOnce = function(src){//导入一次
 			scriptObj = document.getElementById('FOXJS_'+src);
 			if (!scriptObj) {//如果没有导入
-				this.import(src);
+				this['import'](src);
 			}
 			return src;
 		};
-		this.import = function(src){//导入脚本
+		this['import'] = function(src){//导入脚本
 			var scriptObj = document.createElement("SCRIPT");
 			scriptObj.src=src;
 			scriptObj.id = 'FOXJS_'+src;
