@@ -1,0 +1,24 @@
+<html>
+<body>
+
+	<div id="a">1</div>
+	<div id="b">2</div>
+<script type="text/javascript" src="foxjs_v1.2.js"></script>
+<script type="text/javascript">
+__.go({"function":function(){
+	__('a').innerHTML=parseInt(__('a').innerHTML)+1;
+
+},time:1000})
+__.go({"function":function(){
+	__('b').innerHTML=parseInt(__('b').innerHTML)+1;
+
+		},end:function(){
+			if(parseInt(__('b').innerHTML)>10){
+				alert(__('b')._.offset.x());
+				return true;
+			}
+
+		},time:1500})
+</script>
+</body>
+</html>

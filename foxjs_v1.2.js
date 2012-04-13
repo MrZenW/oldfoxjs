@@ -15,7 +15,6 @@
 			param = document.getElementById(param);//如果是字符串就当作ID找到元素
 			if(!param.foxJS || renew){
 				param.foxJS = new foxBaby(param);
-				foxJS.rename(param);
 			}
 		}else if(foxJS.isArray(param)){ //如果是数组
 			var len = param.length;
