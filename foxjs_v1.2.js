@@ -635,5 +635,6 @@
 		}
 	};
 	foxJS.valName = ['_'];
+	foxJS.window = window;
 	window._ = window.__ = window.foxJS = foxJS;
 })(window);
