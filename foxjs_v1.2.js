@@ -64,7 +64,7 @@
 			}
 			return val.toString();
 		};
-		this.do = function(obj){ //do方法，用于进行一些反复的操作
+		this.go = function(obj){ //go方法，用于进行一些反复的操作
 			var iObj = {}
 			iObj['endCount'] = obj.endCount;
 			iObj['nowCount'] = 0;
@@ -73,12 +73,12 @@
 			iObj['endCount'] = obj.endCount;
 			iObj['id'] = Math.floor(Math.random()*100000000)+(new Date()).valueOf().toString();
 			iObj['handle'] = null;
-			iObj['handle'] = setInterval(this._doAction,obj.time,obj.id);
+			iObj['handle'] = setInterval(this._goAction,obj.time,obj.id);
 			foxJS.__FOXJS__INTERVAL__LIST[obj.id] = iObj;
 			return obj.id;
 		};
 
-		this._doAction = function(doId){ //do的工作函数
+		this._goAction = function(doId){ //do的工作函数
 			var iObj = foxJS.__FOXJS__INTERVAL__LIST[doId];
 			var endCount = iObj['endCount']?iObj['endCount']:-1; //执行次数
 			var nowCount = iObj['nowCount']; //当前次数
@@ -102,7 +102,7 @@
 			}
 			iObj.function();
 		};
-		this.unDo = function(doId){ //停止一个动作
+		this.unGo = function(doId){ //停止一个动作
 			if(!foxJS.isArray(doId)){
 				doId = new Array(doId);
 
