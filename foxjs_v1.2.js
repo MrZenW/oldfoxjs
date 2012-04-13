@@ -428,29 +428,28 @@
 			}
 
 		}; 
-		self.importAgain = function(src){ //再导入一次
+		self.includeAgain = function(src){ //再导入一次
 			scriptObj = document.getElementById('FOXJS_'+src);
 			if (!scriptObj) {//如果没有导入
-				self['import'](src);
+				self.include(src);
 			}else{
-				self['import'](src+'?'+(new Date()).valueOf()+self.rand(0,1000));
+				self.include(src+'?'+(new Date()).valueOf()+self.rand(0,1000));
 			}
 		};
-		self.importOnce = function(src){//导入一次
+		self.includeOnce = function(src){//导入一次
 			scriptObj = document.getElementById('FOXJS_'+src);
 			if (!scriptObj) {//如果没有导入
-				self['import'](src);
+				self.include(src);
 			}
 			return src;
 		};
-		self['import'] = function(src){//导入脚本
+		self.include = function(src){//导入脚本
 			var scriptObj = document.createElement("SCRIPT");
 			scriptObj.src=src;
 			scriptObj.id = 'FOXJS_'+src;
 			document.body.insertBefore(scriptObj,document.body.childNodes[0]);
 		};
-	})(foxJS,window); //foxJS.__init
-	//foxJS.__init();	//初始化对象
+	})(foxJS,window); //foxJS init
 
 	foxBaby = function(element){	//特殊的foxjs element对象
 		this.element = element;
