@@ -144,35 +144,34 @@
 
 			var xhr = self.xmlHttpRequestBuilder();
 
-			var type = 'POST';
-			if(!!param.type){
-				type = param.type;
-			}
-			
+			var type = param.type||'POST';
 			var url = param.url;
-			var data = param.data;
+			var data = param.data||null;
+			var resType = param.responseType||null;
 			var callBack = param.callBack;
 
 			if(!self.isJson(param)){ //判断是否是快速使用
 				type = "GET";
 				url = param;
-				data = arguments[1];
-				callBack = arguments[2];
-				if(arguments.length>3){
+				callBack = arguments[1];
+				data = arguments[2];
+				if(!!arguments[3]){
 					type = arguments[3];
 				}
 			}
-			//var outThis = this;
-
+			
 			xhr.open(type,url,true);
+			if(!!resType)xhr.responseType=resType;
+			if(!!param.overrideMimeType)xhr.overrideMimeType(param.overrideMimeType);
 			xhr.onreadystatechange = function(){
 
 				if(xhr.readyState == 4){ //请求成功
-						var resText = xhr.responseText;
-						var resJson = self.toJson(resText);
-						var res = {};
-						res.text = resText;
-						res.json = resJson;
+						var res = xhr;
+						res.response = xhr.response;
+						res.text = xhr.responseText;
+						res.json = self.toJson(res.text);
+						res.xml = xhr.responseXML;
+						res.type = xhr.responseType;
 						callBack(res);
 				}
 			};
