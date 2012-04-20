@@ -50,6 +50,15 @@
 		self.xmlHttpRequest = null;
 		self.helper = {};
 		self.helper.isIE = (document.all && window.ActiveXObject && !window.opera) ? true : false;
+		self.varName = ['_'];
+
+		self.rename = function(element,varName){
+			for (var i in varName) {
+
+				element[varName[i]] = element.foxJS;
+			}
+			return self;
+		};
 
 		self.toString = function(val){ //转为字符串
 			if(self.isArray(val)){
@@ -114,7 +123,7 @@
 				var iObj = foxJS.__FOXJS__INTERVAL__LIST[doId[i]];
 				self.window.clearInterval(iObj['handle']);
 			}
-
+			return self;
 		};
 
 		self.xmlHttpRequestBuilder = function(){ //构造xhr对象
@@ -178,13 +187,14 @@
 			xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");  
 
 			xhr.send(data);
+			return self;
 		};
 		self.crossAjax = function(param){ //AJAX跨域请求
 			var ajaxObj = document.createElement("SCRIPT");
 			ajaxObj.src=param.url+"?"+param.data+"&__callback="+param.callback;
 			//document.body.appendChild(ajaxObj);
 			document.body.insertBefore(ajaxObj,document.body.childNodes[0]);
-
+			return self;
 		};
 
 		self.getType = function(value){	//获得变量类型
@@ -434,19 +444,21 @@
 			}else{
 				self.include(src+'?'+(new Date()).valueOf()+self.rand(0,1000));
 			}
+			return self;
 		};
 		self.includeOnce = function(src){//导入一次
 			scriptObj = document.getElementById('FOXJS_'+src);
 			if (!scriptObj) {//如果没有导入
 				self.include(src);
 			}
-			return src;
+			return self;
 		};
 		self.include = function(src){//导入脚本
 			var scriptObj = document.createElement("SCRIPT");
 			scriptObj.src=src;
 			scriptObj.id = 'FOXJS_'+src;
 			document.body.insertBefore(scriptObj,document.body.childNodes[0]);
+			return self;
 		};
 	})(foxJS,window); //foxJS init
 
@@ -469,6 +481,7 @@
 			}else{
 				this.element.addEventListener(eventActionName,eventFunc,false);
 			}
+			return this.element;
 		};
 
 		this.getAllAttr = function(){	//获得对象所有属性的JSON
@@ -500,12 +513,13 @@
 				}
 
 			}
-			
+			return this.element;
 		};
 		this.addClass = function(className){ //加样式
 			if(!this.hasClass(className)){
 				 this.element.className += " "+className;
 			}
+			return this.element;
 		};
 
 		this.removeClass = function(className){ //删除样式
@@ -513,6 +527,7 @@
 				var reg = new RegExp('(\\s|^)'+className+'(\\s|$)');
 				this.element.className = this.element.className.replace(reg,' ');
 			}
+			return this.element;
 		};
 
 		this.hasClass = function(className){ //判断样式是否存在
@@ -522,9 +537,11 @@
 
 		this.show = function(){	//显示
 			this.element.style.display = "block";
+			return this.element;
 		};
 		this.hidden = function(){	//隐藏
 			this.element.style.display = "none";
+			return this.element;
 		};
 		this.change = function(func1,func2){	//切换状态
 			var argLen = arguments.length;
@@ -543,11 +560,12 @@
 					this.element.style.display = "block";
 				}
 			}
-			
+			return this.element;
 		}
 		//将自己插入到另一元素前
 		this.insertBefore = function(elem){
 			elem.parentNode.insertBefore(this.element,elem);
+			return this.element;
 		};
 		//获得当前的父级节点
 		this.getParent = function(){
@@ -628,12 +646,5 @@
 	};
 	foxJS.fox = foxBaby.prototype;
 
-	foxJS.rename = function(element,varName){
-		for (var i in varName) {
-
-			element[varName[i]] = element.foxJS;
-		}
-	};
-	foxJS.varName = ['_'];
 	window._ = window.__ = window.foxJS = foxJS;
 })(window);
